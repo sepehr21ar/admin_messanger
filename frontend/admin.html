@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>پنل ادمین</title>
+<style>
+  body { font-family: Arial; padding: 20px; direction: rtl; background: #f5f5f5; }
+  h2, h3 { color: #333; }
+  input, button, select, textarea { display: block; width: 100%; margin: 5px 0; padding: 8px; font-size: 15px; }
+  button { background: #2196F3; color: white; border: none; cursor: pointer; }
+  button:hover { background: #0b7dda; }
+  textarea { height: 80px; resize: none; }
+  #msg { font-weight: bold; margin-top: 10px; }
+  .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+</style>
+</head>
+<body>
+
+<h2>👑 پنل ادمین</h2>
+<button onclick="logout()">خروج</button>
+
+<div class="section">
+<h3>👤 کاربران</h3>
+<button onclick="loadUsers()">بارگذاری کاربران</button>
+<ul id="users"></ul>
+</div>
+
+<div class="section">
+<h3>ایجاد کاربر جدید</h3>
+<input id="new_username" placeholder="نام کاربری">
+<input id="new_password" type="password" placeholder="رمز عبور">
+<select id="new_role">
+  <option value="user">کاربر عادی</option>
+  <option value="admin">ادمین</option>
+</select>
+<button onclick="createUser()">ایجاد</button>
+</div>
+
+<div class="section">
+<h3>✉️ ارسال پیام</h3>
+<input id="title" placeholder="عنوان پیام">
+<input id="uids" placeholder="شناسه کاربران: 1,2,3">
+<textarea id="content" placeholder="متن پیام"></textarea>
+<button onclick="sendMessage()">ارسال</button>
+<p id="msg"></p>
+</div>
+
+<script src="./common.js"></script>
+<script>
+if (!parseToken() || parseToken().role !== "admin") logout();
+
+async function loadUsers() {
+  const res = await fetch(API_URL + "/admin/users", { headers: authHeaders() });
+  const list = document.getElementById("users");
+  list.innerHTML = "";
+  (await res.json()).forEach(u => { list.innerHTML += `<li>${u.id} - ${u.username} (${u.role})</li>`; });
+}
+
+async function createUser() {
+  const res = await fetch(API_URL + "/admin/create-user", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({
+      username: new_username.value,
+      password: new_password.value,
+      role: new_role.value
+    })
+  });
+  const data = await res.json();
+  document.getElementById("msg").innerText = data.message;
+}
+
+async function sendMessage() {
+  const ids = uids.value.split(",").map(x => parseInt(x.trim()));
+  const res = await fetch(API_URL + "/messages/send", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({
+      title: title.value,
+      content: content.value,
+      user_ids: ids
+    })
+  });
+  const data = await res.json();
+  document.getElementById("msg").innerText = data.message;
+}
+</script>
+</body>
+</html>

@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app import models
-from app.core.security import get_current_admin
+from app.schemas.user import UserCreate
+from app.core.security import get_current_admin, hash_password
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -13,42 +14,27 @@ def get_db():
     finally:
         db.close()
 
-# 👥 لیست کاربران
 @router.get("/users")
 def list_users(
     db: Session = Depends(get_db),
-    admin: dict = Depends(get_current_admin)
+    admin=Depends(get_current_admin)
 ):
-    users = db.query(models.User).all()
-    return [
-        {
-            "id": u.id,
-            "username": u.username,
-            "role": u.role,
-            "is_active": u.is_active
-        }
-        for u in users
-    ]
+    return db.query(models.User).all()
 
-
-# ✉️ ارسال پیام (نسخه ساده)
-@router.post("/send-message")
-def send_message(
-    user_id: int,
-    message: str,
+@router.post("/create-user")
+def create_user(
+    data: UserCreate,
     db: Session = Depends(get_db),
-    admin: dict = Depends(get_current_admin)
+    admin=Depends(get_current_admin)
 ):
-    user = db.query(models.User).filter_by(id=user_id, is_active=True).first()
-    if not user:
-        raise HTTPException(status_code=400, detail="User not found")
+    if db.query(models.User).filter_by(username=data.username).first():
+        raise HTTPException(400, "Username exists")
 
-    msg = models.Message(
-        title="Admin Message",
-        content=message,
-        admin_id=db.query(models.User).filter_by(username=admin["sub"]).first().id
+    user = models.User(
+        username=data.username,
+        password_hash=hash_password(data.password),
+        role=data.role
     )
-    db.add(msg)
+    db.add(user)
     db.commit()
-
-    return {"message": "Message sent"}
+    return {"message": "User created"}
