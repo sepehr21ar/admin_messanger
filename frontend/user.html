@@ -4,12 +4,38 @@
 <meta charset="UTF-8">
 <title>صندوق پیام‌ها</title>
 <style>
-  body { font-family: Arial; padding: 20px; direction: rtl; background: #f5f5f5; }
+  body {
+    font-family: Arial;
+    padding: 20px;
+    direction: rtl;
+    background: #f5f5f5;
+  }
   h2 { color: #333; }
-  button { padding: 8px 12px; margin: 5px 0; background: #4CAF50; color: white; border: none; cursor: pointer; }
+  button {
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
   button:hover { background: #45a049; }
-  ul { list-style-type: none; padding: 0; }
-  li { background: white; margin: 5px 0; padding: 10px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.1); }
+  ul { list-style: none; padding: 0; }
+  li {
+    background: white;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  li.unread { font-weight: bold; }
+  .message-box {
+    background: white;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 5px;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -20,18 +46,55 @@
 
 <ul id="inbox"></ul>
 
+<div id="message" class="message-box"></div>
+
 <script src="./common.js"></script>
 <script>
 if (!parseToken()) logout();
 
 async function loadInbox() {
-  const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
+  const res = await fetch(API_URL + "/messages/inbox", {
+    headers: authHeaders()
+  });
+
   const list = document.getElementById("inbox");
   list.innerHTML = "";
-  (await res.json()).forEach(m => {
-    list.innerHTML += `<li><b>${m.title}</b>: ${m.content}</li>`;
+
+  const messages = await res.json();
+
+  messages.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = `${m.title} — از: ${m.sender}`;
+    if (!m.is_read) li.classList.add("unread");
+
+    li.onclick = () => openMessage(m.id, li);
+    list.appendChild(li);
   });
 }
+
+async function openMessage(id, li) {
+  const res = await fetch(API_URL + `/messages/${id}`, {
+    headers: authHeaders()
+  });
+  const m = await res.json();
+
+  const box = document.getElementById("message");
+  box.style.display = "block";
+  box.innerHTML = `
+    <h3>${m.title}</h3>
+    <p><b>فرستنده:</b> ${m.sender}</p>
+    <p>${m.content}</p>
+  `;
+
+  await fetch(API_URL + `/messages/${id}/read`, {
+    method: "POST",
+    headers: authHeaders()
+  });
+
+  li.classList.remove("unread");
+}
+
+loadInbox();
 </script>
 </body>
 </html>

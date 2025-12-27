@@ -10,8 +10,10 @@
   button { background: #2196F3; color: white; border: none; cursor: pointer; }
   button:hover { background: #0b7dda; }
   textarea { height: 80px; resize: none; }
-  #msg { font-weight: bold; margin-top: 10px; }
+  #msg { font-weight: bold; margin-top: 10px; color: green; }
   .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+  li { cursor: pointer; margin: 5px 0; }
+  li.unread { font-weight: bold; }
 </style>
 </head>
 <body>
@@ -19,71 +21,175 @@
 <h2>👑 پنل ادمین</h2>
 <button onclick="logout()">خروج</button>
 
+<!-- کاربران -->
 <div class="section">
 <h3>👤 کاربران</h3>
 <button onclick="loadUsers()">بارگذاری کاربران</button>
 <ul id="users"></ul>
 </div>
 
+<!-- ایجاد کاربر -->
 <div class="section">
-<h3>ایجاد کاربر جدید</h3>
+<h3>➕ ایجاد کاربر</h3>
 <input id="new_username" placeholder="نام کاربری">
 <input id="new_password" type="password" placeholder="رمز عبور">
 <select id="new_role">
-  <option value="user">کاربر عادی</option>
+  <option value="user">کاربر</option>
   <option value="admin">ادمین</option>
 </select>
-<button onclick="createUser()">ایجاد</button>
+<button onclick="createUserHandler()">ایجاد</button>
+<p id="msg"></p>
 </div>
 
+<!-- ارسال پیام -->
 <div class="section">
 <h3>✉️ ارسال پیام</h3>
-<input id="title" placeholder="عنوان پیام">
-<input id="uids" placeholder="شناسه کاربران: 1,2,3">
+<input id="title" placeholder="عنوان">
+<input id="uids" placeholder="ID کاربران: 1,2,3">
 <textarea id="content" placeholder="متن پیام"></textarea>
-<button onclick="sendMessage()">ارسال</button>
-<p id="msg"></p>
+<button onclick="sendMessageHandler()">ارسال</button>
+<p id="msgSend" style="color:green; font-weight:bold;"></p>
+</div>
+
+<!-- پیام‌های دریافتی -->
+<div class="section">
+<h3>📥 پیام‌های دریافتی</h3>
+<button onclick="loadInbox()">بارگذاری</button>
+<ul id="inbox"></ul>
+</div>
+
+<!-- پیام‌های ارسالی -->
+<div class="section">
+<h3>📤 پیام‌های ارسالی</h3>
+<button onclick="loadSent()">بارگذاری</button>
+<ul id="sent"></ul>
+</div>
+
+<!-- مشاهده پیام -->
+<div class="section">
+<h3>📄 مشاهده پیام</h3>
+<h4 id="view_title"></h4>
+<p id="view_sender"></p>
+<p id="view_content"></p>
 </div>
 
 <script src="./common.js"></script>
 <script>
+// فقط ادمین‌ها اجازه دارند
 if (!parseToken() || parseToken().role !== "admin") logout();
 
+let usersCache = [];
+
+// بارگذاری کاربران
 async function loadUsers() {
   const res = await fetch(API_URL + "/admin/users", { headers: authHeaders() });
+  const users = await res.json();
+  usersCache = users; // کش کردن برای استفاده در sent messages
   const list = document.getElementById("users");
   list.innerHTML = "";
-  (await res.json()).forEach(u => { list.innerHTML += `<li>${u.id} - ${u.username} (${u.role})</li>`; });
+  users.forEach(u => list.innerHTML += `<li>${u.id} - ${u.username} (${u.role})</li>`);
 }
 
-async function createUser() {
+// ایجاد کاربر
+async function createUserHandler() {
+  const username = document.getElementById("new_username").value.trim();
+  const password = document.getElementById("new_password").value.trim();
+  const role = document.getElementById("new_role").value;
+  const msgEl = document.getElementById("msg");
+
+  if(!username || !password) { msgEl.innerText = "لطفاً تمام فیلدها را پر کنید"; return; }
+
   const res = await fetch(API_URL + "/admin/create-user", {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({
-      username: new_username.value,
-      password: new_password.value,
-      role: new_role.value
-    })
+    body: JSON.stringify({ username, password, role })
   });
   const data = await res.json();
-  document.getElementById("msg").innerText = data.message;
+  msgEl.innerText = data.message;
+  loadUsers();
 }
 
-async function sendMessage() {
-  const ids = uids.value.split(",").map(x => parseInt(x.trim()));
+// ارسال پیام
+async function sendMessageHandler() {
+  const titleVal = document.getElementById("title").value.trim();
+  const contentVal = document.getElementById("content").value.trim();
+  const uidsVal = document.getElementById("uids").value.trim();
+  const msgEl = document.getElementById("msgSend");
+
+  if(!titleVal || !contentVal || !uidsVal) { msgEl.innerText = "لطفاً تمام فیلدها را پر کنید"; return; }
+
+  const ids = uidsVal.split(",").map(x => parseInt(x.trim()));
   const res = await fetch(API_URL + "/messages/send", {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({
-      title: title.value,
-      content: content.value,
-      user_ids: ids
-    })
+    body: JSON.stringify({ title: titleVal, content: contentVal, user_ids: ids })
   });
   const data = await res.json();
-  document.getElementById("msg").innerText = data.message;
+
+  msgEl.innerText = data.message;
+  setTimeout(() => { msgEl.innerText = ""; }, 3000);
+
+  document.getElementById("title").value = "";
+  document.getElementById("content").value = "";
+  document.getElementById("uids").value = "";
+
+  loadSent();
 }
+
+// بارگذاری پیام‌های دریافتی
+async function loadInbox() {
+  const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
+  const inbox = await res.json();
+  const list = document.getElementById("inbox");
+  list.innerHTML = "";
+  inbox.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = `📨 ${m.title} — از: ${m.sender || "سیستم"}`;
+    if(!m.is_read) li.classList.add("unread");
+    li.onclick = () => openMessage(m.id, li);
+    list.appendChild(li);
+  });
+}
+
+// بارگذاری پیام‌های ارسالی
+async function loadSent() {
+  const res = await fetch(API_URL + "/messages/sent", { headers: authHeaders() });
+  const sent = await res.json();
+  const list = document.getElementById("sent");
+  list.innerHTML = "";
+  sent.forEach(m => {
+    const recipients = m.receivers ? m.receivers.map(u => u.username).join(", ") : "";
+    const li = document.createElement("li");
+    li.textContent = `📤 ${m.title} → ${recipients}`;
+    li.onclick = () => openSentMessage(m);
+    list.appendChild(li);
+  });
+}
+
+// باز کردن پیام دریافتی
+async function openMessage(id, li=null) {
+  const res = await fetch(API_URL + `/messages/${id}`, { headers: authHeaders() });
+  const m = await res.json();
+  document.getElementById("view_title").innerText = m.title;
+  document.getElementById("view_sender").innerText = "فرستنده: " + (m.sender || "سیستم");
+  document.getElementById("view_content").innerText = m.content;
+
+  if(li && li.classList.contains("unread")) {
+    await fetch(API_URL + `/messages/${id}/read`, { method:"POST", headers: authHeaders() });
+    li.classList.remove("unread");
+  }
+}
+
+// باز کردن پیام ارسالی
+function openSentMessage(m) {
+  document.getElementById("view_title").innerText = m.title;
+  document.getElementById("view_sender").innerText = "فرستنده: " + (m.sender || parseToken()?.username || "ادمین");
+  document.getElementById("view_content").innerText = m.content;
+}
+
+// بارگذاری اولیه
+loadUsers().then(loadInbox);
+
 </script>
 </body>
 </html>
