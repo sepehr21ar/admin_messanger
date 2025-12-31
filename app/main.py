@@ -10,7 +10,7 @@ app = FastAPI(title="Auth & Messaging System")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # بعداً محدودش کن
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],  # GET, POST, OPTIONS, ...
     allow_headers=["*"],
