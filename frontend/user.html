@@ -2,99 +2,315 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>صندوق پیام‌ها</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صندوق پیام‌ها - کاربر</title>
 <style>
+  * {
+    box-sizing: border-box;
+  }
   body {
-    font-family: Arial;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
     padding: 20px;
     direction: rtl;
-    background: #f5f5f5;
   }
-  h2 { color: #333; }
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .header {
+    background: rgb(153, 171, 237);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .user-info {
+    background: #ffffff;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+  h2 {
+    margin: 0;
+    color: #333;
+  }
   button {
-    padding: 8px 12px;
-    margin: 5px 0;
-    background: #4CAF50;
+    padding: 8px 16px;
+    background: #3b9847;
     color: white;
     border: none;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
   }
   button:hover { background: #45a049; }
-  ul { list-style: none; padding: 0; }
-  li {
-    background: white;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+  button:active { transform: scale(0.97); }
+  .logout-btn {
+    background: #ec0c22;
   }
-  li.unread { font-weight: bold; }
-  .message-box {
+  .logout-btn:hover { background: #be1022; }
+  .refresh-btn {
+    background: #17a2b8;
+    margin-left: 10px;
+  }
+  .two-columns {
+    display: flex;
+    gap: 23px;
+    flex-wrap: wrap;
+  }
+  .messages-panel {
+    flex: 1;
+    min-width: 280px;
+    background: rgb(252, 252, 252);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    height: fit-content;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .content-panel {
+    flex: 1.5;
+    min-width: 300px;
     background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 20px;
+    height: fit-content;
+    min-height: 340px;
+  }
+  .inbox-list {
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+  .message-item {
     padding: 15px;
-    margin-top: 15px;
-    border-radius: 5px;
-    display: none;
+    border-bottom: 1px solid #040d33;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .message-item:hover {
+    background: rgb(221, 220, 220);
+  }
+  .message-item.unread {
+    background: #f8f9fa;
+    border-right: 4px solid #2196F3;
+    font-weight: bold;
+  }
+  .message-item.unread:hover {
+    background: rgb(221, 220, 220);
+  }
+  .message-item.selected {
+    background: #cfe7ff;
+    border-left: 3px solid #0a58ca;
+  }
+  .message-title {
+    font-size: 16px;
+  }
+  .message-sender {
+    font-size: 12px;
+    color: #615f5f;
+    margin-top: 5px;
+  }
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+  }
+  .message-detail h3 {
+    margin-top: 0;
+    color: #333;
+  }
+  .message-detail p {
+    line-height: 1.5;
+  }
+  hr {
+    margin: 15px 0;
+  }
+  @media (max-width: 700px) {
+    .two-columns {
+      flex-direction: column;
+    }
   }
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="header">
+    <h2>📥 صندوق پیام‌های من</h2>
+    <div class="user-info" id="userInfoDisplay"></div>
+    <div>
+      <button class="refresh-btn" onclick="loadInboxWithFeedback()">🔄 بارگذاری</button>
+      <button class="logout-btn" onclick="logout()">🚪 خروج</button>
+    </div>
+  </div>
 
-<h2>📥 صندوق پیام‌ها</h2>
-<button onclick="logout()">خروج</button>
-<button onclick="loadInbox()">بارگذاری</button>
-
-<ul id="inbox"></ul>
-
-<div id="message" class="message-box"></div>
+  <div class="two-columns">
+    <div class="messages-panel" id="inboxContainer">
+      <div class="loading">در حال بارگذاری پیام‌ها...</div>
+    </div>
+    <div class="content-panel" id="messageDetail">
+      <div class="empty-state">📭 روی یک پیام کلیک کنید<br>متن آن در اینجا نمایش داده می‌شود</div>
+    </div>
+  </div>
+</div>
 
 <script src="./common.js"></script>
 <script>
-if (!parseToken()) logout();
+  let currentOpenId = null;
+  let inboxMessages = [];      
+  let tokenData = parseToken();
 
-async function loadInbox() {
-  const res = await fetch(API_URL + "/messages/inbox", {
-    headers: authHeaders()
-  });
+  if (!tokenData) {
+    logout();
+  } else {
+    const username = tokenData.username || tokenData.sub || "کاربر";
+    document.getElementById('userInfoDisplay').innerHTML = `👤 Welcome ${username} (ID : ${tokenData.user_id})`;
+  }
 
-  const list = document.getElementById("inbox");
-  list.innerHTML = "";
+  function sortMessages(messages) {
+    return [...messages].sort((a, b) => {
+      if (a.is_read !== b.is_read) {
+        return a.is_read ? 1 : -1;   
+      }
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    });
+  }
 
-  const messages = await res.json();
+  function renderInbox() {
+    const container = document.getElementById('inboxContainer');
+    if (!inboxMessages || inboxMessages.length === 0) {
+      container.innerHTML = '<div class="empty-state">📭 پیامی وجود ندارد</div>';
+      return;
+    }
 
-  messages.forEach(m => {
-    const li = document.createElement("li");
-    li.textContent = `${m.title} — از: ${m.sender}`;
-    if (!m.is_read) li.classList.add("unread");
+    const sorted = sortMessages(inboxMessages);
+    container.innerHTML = '';
+    sorted.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = `message-item ${!msg.is_read ? 'unread' : ''}`;
+      if (currentOpenId === msg.id) div.classList.add('selected');
+      div.setAttribute('data-id', msg.id);
+      div.innerHTML = `
+        <div class="message-title">📌 ${escapeHtml(msg.title)}</div>
+        <div class="message-sender">از: ${escapeHtml(msg.sender || 'سیستم')}</div>
+        <div class="message-sender" style="font-size:10px; color:#888;">📅 ${formatDate(msg.created_at)}</div>
+      `;
+      div.onclick = (function(id) {
+        return function() { openMessageDetail(id); };
+      })(msg.id);
+      container.appendChild(div);
+    });
+  }
 
-    li.onclick = () => openMessage(m.id, li);
-    list.appendChild(li);
-  });
+  async function loadInboxWithFeedback() {
+    const container = document.getElementById('inboxContainer');
+    container.innerHTML = '<div class="loading">🔄 در حال بارگذاری...</div>';
+    try {
+      const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
+      if (!res.ok) throw new Error('خطا در دریافت پیام‌ها');
+      inboxMessages = await res.json();
+      if (!inboxMessages.some(m => m.id === currentOpenId)) {
+        currentOpenId = null;
+        document.getElementById('messageDetail').innerHTML = '<div class="empty-state">📭 روی یک پیام کلیک کنید<br>متن آن در اینجا نمایش داده می‌شود</div>';
+      }
+      renderInbox();
+      if (currentOpenId) {
+        const stillOpenMsg = inboxMessages.find(m => m.id === currentOpenId);
+        if (stillOpenMsg) {
+          displayMessageDetail(stillOpenMsg);
+        }
+      }
+    } catch(err) {
+      container.innerHTML = `<div class="empty-state">❌ خطا در دریافت پیام‌ها: ${err.message}</div>`;
+    }
+  }
+
+  function displayMessageDetail(msg) {
+    const detailDiv = document.getElementById('messageDetail');
+    detailDiv.innerHTML = `
+      <div>
+        <h3>📄 ${escapeHtml(msg.title)}</h3>
+        <p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p>
+        <p><strong>📅 تاریخ:</strong> ${formatDate(msg.created_at)}</p>
+        <hr>
+        <p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p>
+      </div>
+    `;
+  }
+
+  async function openMessageDetail(id) {
+  if (currentOpenId === id) return;
+
+  const detailDiv = document.getElementById('messageDetail');
+  detailDiv.innerHTML = '<div class="loading">📖 در حال بارگذاری...</div>';
+
+  try {
+    const res = await fetch(API_URL + `/messages/${id}`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('خطا در دریافت متن پیام');
+    const message = await res.json();
+
+    const idx = inboxMessages.findIndex(m => m.id === id);
+    if (idx !== -1) {
+      inboxMessages[idx] = { ...inboxMessages[idx], ...message };
+    } else {
+      inboxMessages.push(message);
+    }
+
+    displayMessageDetail(message);
+    currentOpenId = id;
+
+    if (!message.is_read) {
+      await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+      message.is_read = true;
+      renderInbox();  
+      displayMessageDetail(message);
+    } else {
+      renderInbox();
+    }
+  } catch (err) {
+    detailDiv.innerHTML = `<div class="empty-state">❌ خطا: ${err.message}</div>`;
+  }
 }
 
-async function openMessage(id, li) {
-  const res = await fetch(API_URL + `/messages/${id}`, {
-    headers: authHeaders()
-  });
-  const m = await res.json();
+  function formatDate(dateStr) {
+    if (!dateStr) return 'نامشخص';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('fa-IR') + ' ' + d.toLocaleTimeString('fa-IR');
+    } catch(e) {
+      return dateStr;
+    }
+  }
 
-  const box = document.getElementById("message");
-  box.style.display = "block";
-  box.innerHTML = `
-    <h3>${m.title}</h3>
-    <p><b>فرستنده:</b> ${m.sender}</p>
-    <p>${m.content}</p>
-  `;
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if(m === '&') return '&amp;';
+      if(m === '<') return '&lt;';
+      if(m === '>') return '&gt;';
+      return m;
+    });
+  }
 
-  await fetch(API_URL + `/messages/${id}/read`, {
-    method: "POST",
-    headers: authHeaders()
-  });
-
-  li.classList.remove("unread");
-}
-
-loadInbox();
+  loadInboxWithFeedback();
 </script>
 </body>
 </html>

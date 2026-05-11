@@ -2,12 +2,10 @@
 
 const API_URL = "http://127.0.0.1:8000";
 
-// دریافت توکن
 function getToken() {
   return localStorage.getItem("token");
 }
 
-// هدرهای احراز هویت
 function authHeaders() {
   return {
     "Content-Type": "application/json",
@@ -15,20 +13,17 @@ function authHeaders() {
   };
 }
 
-// خروج
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "login.html";
 }
 
-// استخراج اطلاعات از توکن
 function parseToken() {
   const token = getToken();
   if (!token) return null;
   return JSON.parse(atob(token.split('.')[1]));
 }
 
-// بارگذاری پیام‌های دریافتی
 async function loadInbox() {
   const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
   const inbox = await res.json();
@@ -44,7 +39,6 @@ async function loadInbox() {
   });
 }
 
-// باز کردن پیام دریافتی و mark as read
 async function openMessage(id, li=null) {
   const res = await fetch(`${API_URL}/messages/${id}`, { headers: authHeaders() });
   const m = await res.json();
@@ -53,14 +47,12 @@ async function openMessage(id, li=null) {
   document.getElementById("view_sender").innerText = "✉️ فرستنده: " + (m.sender || "سیستم");
   document.getElementById("view_content").innerText = m.content;
 
-  // mark as read اگر پیام دریافتی باشد
   if (li && li.classList.contains("unread")) {
     await fetch(`${API_URL}/messages/${id}/read`, { method: "POST", headers: authHeaders() });
     li.classList.remove("unread");
   }
 }
 
-// بارگذاری پیام‌های ارسالی (برای admin)
 async function loadSent() {
   const res = await fetch(API_URL + "/messages/sent", { headers: authHeaders() });
   const sent = await res.json();
@@ -77,19 +69,17 @@ async function loadSent() {
   });
 }
 
-// باز کردن پیام ارسالی
 function openSentMessage(m) {
   document.getElementById("view_title").innerText = m.title;
   document.getElementById("view_sender").innerText = "فرستنده: " + (parseToken()?.username || "ادمین");
   document.getElementById("view_content").innerText = m.content;
 }
 
-// بارگذاری کاربران (برای admin)
 async function loadUsers() {
   const res = await fetch(API_URL + "/admin/users", { headers: authHeaders() });
   const users = await res.json();
   const list = document.getElementById("users");
-  window.usersCache = users; // ذخیره برای نمایش گیرندگان در sent
+  window.usersCache = users; 
   list.innerHTML = "";
   users.forEach(u => {
     const li = document.createElement("li");
@@ -98,7 +88,6 @@ async function loadUsers() {
   });
 }
 
-// ایجاد کاربر جدید (برای admin)
 async function createUser(username, password, role, msgElementId="msg") {
   const res = await fetch(API_URL + "/admin/create-user", {
     method: "POST",
@@ -110,7 +99,6 @@ async function createUser(username, password, role, msgElementId="msg") {
   loadUsers();
 }
 
-// ارسال پیام
 async function sendMessage(title, content, user_ids, msgElementId="msg") {
   const res = await fetch(API_URL + "/messages/send", {
     method: "POST",

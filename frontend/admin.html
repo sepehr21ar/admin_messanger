@@ -2,194 +2,739 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>پنل ادمین</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت پیام‌ها</title>
 <style>
-  body { font-family: Arial; padding: 20px; direction: rtl; background: #f5f5f5; }
-  h2, h3 { color: #333; }
-  input, button, select, textarea { display: block; width: 100%; margin: 5px 0; padding: 8px; font-size: 15px; }
-  button { background: #2196F3; color: white; border: none; cursor: pointer; }
-  button:hover { background: #0b7dda; }
-  textarea { height: 80px; resize: none; }
-  #msg { font-weight: bold; margin-top: 10px; color: green; }
-  .section { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
-  li { cursor: pointer; margin: 5px 0; }
-  li.unread { font-weight: bold; }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .user-info {
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 14px;
+    color: #333 ;
+  }
+  .header h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+  .btn-logout {
+    background: #dc3545;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+  }
+  .two-columns {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+  }
+  .left-panel {
+    flex: 1.2;
+    min-width: 350px;
+  }
+  .right-panel {
+    flex: 0.8;
+    min-width: 350px;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+  }
+  .card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 25px;
+  }
+  .card-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 2px solid #6b6e71;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-body {
+    padding: 20px;
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 3px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+  button {
+    padding: 10px 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  button:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+  }
+  button:active {
+    transform: translateY(0);
+  }
+  button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-success {
+    background: #28a745;
+  }
+  .btn-success:hover {
+    background: #218838;
+  }
+  .btn-info {
+    background: #17a2b8;
+  }
+  .btn-info:hover {
+    background: #138496;
+  }
+  .list-container {
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .list-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #c00808;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .list-item:hover {
+  background: rgb(221, 220, 220);
+  }
+  
+
+  .list-item.unread {
+    background: #e3f2fd;
+    border-right: 4px solid #2196F3;
+    font-weight: bold;
+  }
+  .list-item.active {
+    background: #e8eaf6;
+    border-right: 4px solid #667eea;
+  }
+  .message-preview {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+  }
+  .message-viewer {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: sticky;
+    top: 20px;
+  }
+  .viewer-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+  .viewer-content {
+    padding: 20px;
+    min-height: 400px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+  .empty-viewer {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+  .users-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .user-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+  .user-item.current-admin {
+    background: #e9ecef;
+    border-right: 4px solid #6c757d;
+    font-weight: bold;
+  }
+  .alert {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  .alert-success {
+    background: #d4edda;
+    color: #155724;
+    border-right: 4px solid #28a745;
+  }
+  .alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-right: 4px solid #dc3545;
+  }
+  .alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-right: 4px solid #17a2b8;
+  }
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #e9ecef;
+    background: #f8f9fa;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+  }
+  .tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: white;
+  }
+  .tab:hover:not(.active) {
+    background: #e9ecef;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+  /* چیدمان جدید: دو کارت در ردیف اول، کارت ارسال پیام در ردیف دوم به صورت افقی */
+  .row-cards {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+  }
+  .row-cards .card {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  /* کارت ارسال پیام در زیر با عرض کامل */
+  .horizontal-message-card .card-body {
+    padding: 8px;
+  }
+  .horizontal-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  .horizontal-form .field {
+    flex: 1;
+    min-width: 150px;
+  }
+  .horizontal-form .field-button {
+    flex: 0.3;
+    min-width: 100px;
+  }
+  @media (max-width: 900px) {
+    .two-columns {
+      flex-direction: column;
+    }
+    .right-panel {
+      position: static;
+    }
+    .row-cards {
+      flex-direction: column;
+    }
+  }
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="header">
+    <h2>👑 پنل مدیریت سامانه پیام‌ها</h2>
+    <div class="user-info" id="userInfoDisplay"></div>
+    <button class="btn-logout" onclick="logout()">🚪 خروج از پنل</button>
+  </div>
 
-<h2>👑 پنل ادمین</h2>
-<button onclick="logout()">خروج</button>
+  <!-- ردیف اول: دو کارت مدیریت کاربران و ایجاد کاربر جدید در کنار هم -->
+  <div class="row-cards">
+    <div class="card">
+      <div class="card-header">👤 مدیریت کاربران</div>
+      <div class="card-body">
+        <button class="btn-info" onclick="loadUsersWithFeedback()" style="margin-bottom: 15px;">🔄 بارگذاری کاربران</button>
+        <div id="usersList" class="users-list">
+          <div class="loading">برای نمایش کلیک کنید</div>
+        </div>
+      </div>
+    </div>
 
-<!-- کاربران -->
-<div class="section">
-<h3>👤 کاربران</h3>
-<button onclick="loadUsers()">بارگذاری کاربران</button>
-<ul id="users"></ul>
+    <div class="card">
+      <div class="card-header">➕ ایجاد کاربر جدید</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>🎭 نقش کاربری</label>
+          <select id="newRole">
+            <option value="user">📘 کاربر عادی</option>
+            <option value="admin">👑 ادمین</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>👤 نام کاربری</label>
+          <input type="text" id="newUsername" placeholder="مثال: john_doe" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>🔒 رمز عبور</label>
+          <input type="password" id="newPassword" placeholder="حداقل ۴ کاراکتر">
+        </div>
+        <button class="btn-success" onclick="createUserWithFeedback()">✅ ایجاد کاربر</button>
+        <div id="createUserMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ردیف دوم: کارت ارسال پیام جدید به صورت افقی (فیلدها در یک ردیف) -->
+<!-- ردیف دوم: کارت ارسال پیام جدید -->
+<div class="card horizontal-message-card">
+  <div class="card-header">✉️ ارسال پیام جدید</div>
+  <div class="card-body">
+    <!-- کل محتوا داخل یک فلکس ستونی -->
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+
+      <!-- ردیف افقی: عنوان پیام + شناسه کاربران -->
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <!-- ستون عنوان پیام -->
+        <div style="flex: 1;">
+          <label>📌 عنوان پیام</label>
+          <input type="text" id="msgTitle" placeholder="عنوان پیام" style="width: 100%;">
+        </div>
+        <!-- ستون شناسه کاربران -->
+        <div style="flex: 1;">
+          <label>👥 شناسه کاربران</label>
+          <input type="text" id="userIds" placeholder="مثال: 1,2,3,5" style="width: 100%;">
+          <small style="color:#666; display:block; margin-top: 1px;">💡 از لیست کاربران بالا</small>
+        </div>
+      </div>
+
+      <!-- ردیف متن پیام (در عرض کامل) -->
+      <div>
+        <label>📝 متن پیام</label>
+        <textarea id="msgContent" placeholder="متن پیام را وارد کنید..." rows="3" style="width: 100%;"></textarea>
+      </div>
+
+      <!-- ردیف دکمه ارسال -->
+      <div>
+        <button id="sendMsgBtn" onclick="sendMessageWithFeedback()" style="width: 100%; padding: 8px 20px; font-size: 14px; margin-top: 5px;">📨 ارسال</button>
+        <div id="sendMsgResult"></div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- ایجاد کاربر -->
-<div class="section">
-<h3>➕ ایجاد کاربر</h3>
-<input id="new_username" placeholder="نام کاربری">
-<input id="new_password" type="password" placeholder="رمز عبور">
-<select id="new_role">
-  <option value="user">کاربر</option>
-  <option value="admin">ادمین</option>
-</select>
-<button onclick="createUserHandler()">ایجاد</button>
-<p id="msg"></p>
-</div>
+  <!-- بخش پایینی (لیست پیام‌ها و نمایشگر) بدون تغییر -->
+  <div class="two-columns">
+    <div class="left-panel">
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active" data-tab="inbox" onclick="switchTab('inbox')">📥 پیام‌های دریافتی من</div>
+          <div class="tab" data-tab="sent" onclick="switchTab('sent')">📤 پیام‌های ارسالی من</div>
+        </div>
+        <div id="tab-inbox" class="tab-content active">
+          <div class="card-header" style="border-top: none;">
+            <span>📬 صندوق دریافتی</span>
+            <button class="btn-info" onclick="loadInboxWithFeedback()" style="padding: 5px 12px; font-size: 12px;">🔄 بارگذاری</button>
+          </div>
+          <div class="card-body" style="padding-top: 0;">
+            <div id="inboxList" class="list-container">
+              <div class="loading">در حال بارگذاری پیام‌ها...</div>
+            </div>
+          </div>
+        </div>
+        <div id="tab-sent" class="tab-content">
+          <div class="card-header" style="border-top: none;">
+            <span>📤 تاریخچه ارسالی</span>
+            <button class="btn-info" onclick="loadSentWithFeedback()" style="padding: 5px 12px; font-size: 12px;">🔄 بارگذاری</button>
+          </div>
+          <div class="card-body" style="padding-top: 0;">
+            <div id="sentList" class="list-container">
+              <div class="loading">در حال بارگذاری پیام‌ها...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<!-- ارسال پیام -->
-<div class="section">
-<h3>✉️ ارسال پیام</h3>
-<input id="title" placeholder="عنوان">
-<input id="uids" placeholder="ID کاربران: 1,2,3">
-<textarea id="content" placeholder="متن پیام"></textarea>
-<button onclick="sendMessageHandler()">ارسال</button>
-<p id="msgSend" style="color:green; font-weight:bold;"></p>
-</div>
-
-<!-- پیام‌های دریافتی -->
-<div class="section">
-<h3>📥 پیام‌های دریافتی</h3>
-<button onclick="loadInbox()">بارگذاری</button>
-<ul id="inbox"></ul>
-</div>
-
-<!-- پیام‌های ارسالی -->
-<div class="section">
-<h3>📤 پیام‌های ارسالی</h3>
-<button onclick="loadSent()">بارگذاری</button>
-<ul id="sent"></ul>
-</div>
-
-<!-- مشاهده پیام -->
-<div class="section">
-<h3>📄 مشاهده پیام</h3>
-<h4 id="view_title"></h4>
-<p id="view_sender"></p>
-<p id="view_content"></p>
+    <div class="right-panel"> 
+      <div class="message-viewer">
+        <div class="viewer-header">📄 نمایش پیام</div>
+        <div class="viewer-content" id="messageViewer">
+          <div class="empty-viewer">📭 روی هر پیامی از لیست کلیک کنید<br>محتوای آن در اینجا نمایش داده می‌شود</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="./common.js"></script>
 <script>
-// فقط ادمین‌ها اجازه دارند
-if (!parseToken() || parseToken().role !== "admin") logout();
+  const tokenData = parseToken();
+  if (!tokenData || tokenData.role !== "admin") {
+    alert("شما دسترسی ادمین ندارید");
+    logout();
+  }
 
-let usersCache = [];
+  let currentUserId = tokenData.user_id || tokenData.id || tokenData.sub;
+  currentUserId = Number(currentUserId);
+  const currentUsername = tokenData.username || tokenData.sub || "ادمین";
+  document.getElementById('userInfoDisplay').innerHTML = `👤 Welcome ${currentUsername} (ID : ${tokenData.user_id})`;
+  
+  console.log("Current Admin ID:", currentUserId);
 
-// بارگذاری کاربران
-async function loadUsers() {
-  const res = await fetch(API_URL + "/admin/users", { headers: authHeaders() });
-  const users = await res.json();
-  usersCache = users; // کش کردن برای استفاده در sent messages
-  const list = document.getElementById("users");
-  list.innerHTML = "";
-  users.forEach(u => list.innerHTML += `<li>${u.id} - ${u.username} (${u.role})</li>`);
+  let usersCache = [];
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById('tab-inbox').classList.remove('active');
+    document.getElementById('tab-sent').classList.remove('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+  }
+
+  async function loadUsersWithFeedback() {
+    const container = document.getElementById('usersList');
+    container.innerHTML = '<div class="loading">🔄 در حال بارگذاری کاربران...</div>';
+    try {
+      const res = await fetch(API_URL + "/admin/users", { headers: authHeaders() });
+      if (!res.ok) throw new Error('خطا در دریافت کاربران');
+      const users = await res.json();
+      usersCache = users;
+      if (users.length === 0) {
+        container.innerHTML = '<div class="empty-state">📭 کاربری یافت نشد</div>';
+        return;
+      }
+      container.innerHTML = '';
+      users.forEach(user => {
+        const div = document.createElement('div');
+        div.className = 'user-item';
+        if (Number(user.id) === currentUserId) {
+          div.classList.add('current-admin');
+        }
+        const roleColor = user.role === 'admin' ? '#28a745' : '#6c757d';
+        const roleText = user.role === 'admin' ? 'ادمین' : 'کاربر';
+        div.innerHTML = `<strong>🆔 ${user.id}</strong> - ${escapeHtml(user.username)} <span style="color:${roleColor}; font-size:12px;">(${roleText})</span>`;
+        container.appendChild(div);
+      });
+    } catch(err) {
+      container.innerHTML = `<div class="empty-state">❌ ${err.message}</div>`;
+    }
+  }
+
+  async function createUserWithFeedback() {
+    const role = document.getElementById('newRole').value;
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
+    const msgDiv = document.getElementById('createUserMsg');
+    if (!username || !password) {
+      showAlert(msgDiv, 'لطفاً نام کاربری و رمز عبور را وارد کنید', 'error');
+      return;
+    }
+    if (password.length < 4) {
+      showAlert(msgDiv, 'رمز عبور باید حداقل ۴ کاراکتر باشد', 'error');
+      return;
+    }
+    msgDiv.innerHTML = '<div class="alert alert-info">در حال ایجاد کاربر...</div>';
+    try {
+      const res = await fetch(API_URL + "/admin/create-user", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ username, password, role })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showAlert(msgDiv, data.detail || 'خطا در ایجاد کاربر', 'error');
+        return;
+      }
+      showAlert(msgDiv, `✅ کاربر ${username} با موفقیت ایجاد شد`, 'success');
+      document.getElementById('newUsername').value = '';
+      document.getElementById('newPassword').value = '';
+      loadUsersWithFeedback();
+      setTimeout(() => msgDiv.innerHTML = '', 3000);
+    } catch(err) {
+      showAlert(msgDiv, '❌ خطا در ارتباط با سرور', 'error');
+    }
+  }
+
+  async function sendMessageWithFeedback() {
+    const title = document.getElementById('msgTitle').value.trim();
+    const content = document.getElementById('msgContent').value.trim();
+    const userIdsStr = document.getElementById('userIds').value.trim();
+    const resultDiv = document.getElementById('sendMsgResult');
+    const sendBtn = document.getElementById('sendMsgBtn');
+    
+    if (!title || !content || !userIdsStr) {
+      showAlert(resultDiv, 'لطفاً عنوان، متن و شناسه کاربران را وارد کنید', 'error');
+      return;
+    }
+    
+    let userIds = userIdsStr.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+    if (userIds.length === 0) {
+      showAlert(resultDiv, 'شناسه کاربران معتبر وارد کنید (اعداد با کاما جدا شوند)', 'error');
+      return;
+    }
+    
+    if (userIds.includes(currentUserId)) {
+      showAlert(resultDiv, '❌ شما نمی‌توانید به خودتان پیام ارسال کنید. شناسه خود را از لیست حذف کنید.', 'error');
+      return;
+    }
+    
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'در حال ارسال...';
+    resultDiv.innerHTML = '<div class="alert alert-info">📤 در حال ارسال پیام...</div>';
+    
+    try {
+      const res = await fetch(API_URL + "/messages/send", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ title, content, user_ids: userIds })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showAlert(resultDiv, data.detail || 'خطا در ارسال پیام', 'error');
+        return;
+      }
+      showAlert(resultDiv, `✅ پیام "${title}" با موفقیت به ${userIds.length} کاربر ارسال شد`, 'success');
+      document.getElementById('msgTitle').value = '';
+      document.getElementById('msgContent').value = '';
+      document.getElementById('userIds').value = '';
+      loadSentWithFeedback();
+      setTimeout(() => resultDiv.innerHTML = '', 3000);
+    } catch(err) {
+      showAlert(resultDiv, '❌ خطا در ارتباط با سرور: ' + err.message, 'error');
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = '📨 ارسال';
+    }
+  }
+function formatDate(dateStr) {
+  if (!dateStr) return 'نامشخص';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fa-IR') + ' ' + d.toLocaleTimeString('fa-IR');
+  } catch(e) {
+    return dateStr;
+  }
 }
-
-// ایجاد کاربر
-async function createUserHandler() {
-  const username = document.getElementById("new_username").value.trim();
-  const password = document.getElementById("new_password").value.trim();
-  const role = document.getElementById("new_role").value;
-  const msgEl = document.getElementById("msg");
-
-  if(!username || !password) { msgEl.innerText = "لطفاً تمام فیلدها را پر کنید"; return; }
-
-  const res = await fetch(API_URL + "/admin/create-user", {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify({ username, password, role })
-  });
-  const data = await res.json();
-  msgEl.innerText = data.message;
-  loadUsers();
+ async function loadInboxWithFeedback() {
+  const container = document.getElementById('inboxList');
+  container.innerHTML = '<div class="loading">🔄 در حال بارگذاری پیام‌های دریافتی...</div>';
+  try {
+    const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
+    if (!res.ok) throw new Error('خطا در دریافت پیام‌ها');
+    let messages = await res.json();
+    
+    if (messages.length === 0) {
+      container.innerHTML = '<div class="empty-state">📭 پیام دریافتی وجود ندارد</div>';
+      return;
+    }
+    
+    messages.sort((a, b) => {
+      if (a.is_read !== b.is_read) {
+        return a.is_read ? 1 : -1;
+      }
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    });
+    
+    container.innerHTML = '';
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = `list-item ${!msg.is_read ? 'unread' : ''}`;
+      div.setAttribute('data-id', msg.id);
+      div.innerHTML = `
+        <strong>📨 ${escapeHtml(msg.title)}</strong>
+        <div class="message-preview">از: ${escapeHtml(msg.sender || 'سیستم')}</div>
+        <div style="font-size: 11px; color: #888; margin-top: 5px;">📅 ${formatDate(msg.created_at)}</div>
+      `;
+      div.onclick = () => showInboxMessageDetail(msg.id, div);
+      container.appendChild(div);
+    });
+  } catch(err) {
+    container.innerHTML = `<div class="empty-state">❌ خطا: ${err.message}</div>`;
+  }
 }
-
-// ارسال پیام
-async function sendMessageHandler() {
-  const titleVal = document.getElementById("title").value.trim();
-  const contentVal = document.getElementById("content").value.trim();
-  const uidsVal = document.getElementById("uids").value.trim();
-  const msgEl = document.getElementById("msgSend");
-
-  if(!titleVal || !contentVal || !uidsVal) { msgEl.innerText = "لطفاً تمام فیلدها را پر کنید"; return; }
-
-  const ids = uidsVal.split(",").map(x => parseInt(x.trim()));
-  const res = await fetch(API_URL + "/messages/send", {
-    method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify({ title: titleVal, content: contentVal, user_ids: ids })
-  });
-  const data = await res.json();
-
-  msgEl.innerText = data.message;
-  setTimeout(() => { msgEl.innerText = ""; }, 3000);
-
-  document.getElementById("title").value = "";
-  document.getElementById("content").value = "";
-  document.getElementById("uids").value = "";
-
-  loadSent();
-}
-
-// بارگذاری پیام‌های دریافتی
-async function loadInbox() {
-  const res = await fetch(API_URL + "/messages/inbox", { headers: authHeaders() });
-  const inbox = await res.json();
-  const list = document.getElementById("inbox");
-  list.innerHTML = "";
-  inbox.forEach(m => {
-    const li = document.createElement("li");
-    li.textContent = `📨 ${m.title} — از: ${m.sender || "سیستم"}`;
-    if(!m.is_read) li.classList.add("unread");
-    li.onclick = () => openMessage(m.id, li);
-    list.appendChild(li);
-  });
-}
-
-// بارگذاری پیام‌های ارسالی
-async function loadSent() {
-  const res = await fetch(API_URL + "/messages/sent", { headers: authHeaders() });
-  const sent = await res.json();
-  const list = document.getElementById("sent");
-  list.innerHTML = "";
-  sent.forEach(m => {
-    const recipients = m.receivers ? m.receivers.map(u => u.username).join(", ") : "";
-    const li = document.createElement("li");
-    li.textContent = `📤 ${m.title} → ${recipients}`;
-    li.onclick = () => openSentMessage(m);
-    list.appendChild(li);
-  });
-}
-
-// باز کردن پیام دریافتی
-async function openMessage(id, li=null) {
-  const res = await fetch(API_URL + `/messages/${id}`, { headers: authHeaders() });
-  const m = await res.json();
-  document.getElementById("view_title").innerText = m.title;
-  document.getElementById("view_sender").innerText = "فرستنده: " + (m.sender || "سیستم");
-  document.getElementById("view_content").innerText = m.content;
-
-  if(li && li.classList.contains("unread")) {
-    await fetch(API_URL + `/messages/${id}/read`, { method:"POST", headers: authHeaders() });
-    li.classList.remove("unread");
+ async function loadSentWithFeedback() {
+  const container = document.getElementById('sentList');
+  container.innerHTML = '<div class="loading">🔄 در حال بارگذاری پیام‌های ارسالی...</div>';
+  try {
+    const res = await fetch(API_URL + "/messages/sent", { headers: authHeaders() });
+    if (!res.ok) throw new Error('خطا در دریافت پیام‌ها');
+    let messages = await res.json();  
+    
+    if (messages.length === 0) {
+      container.innerHTML = '<div class="empty-state">📤 پیام ارسالی ندارید</div>';
+      return;
+    }
+    
+    messages.sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    });
+    
+    container.innerHTML = '';
+    messages.forEach(msg => {
+      const receivers = msg.receivers ? msg.receivers.map(u => u.username).join(', ') : `${msg.receivers_count || 0} نفر`;
+      const div = document.createElement('div');
+      div.className = 'list-item';
+      div.setAttribute('data-id', msg.id);
+      div.innerHTML = `
+        <strong>📤 ${escapeHtml(msg.title)}</strong>
+        <div class="message-preview">گیرندگان: ${escapeHtml(receivers)}</div>
+        <div style="font-size: 11px; color: #888; margin-top: 5px;">📅 ${formatDate(msg.created_at)}</div>
+      `;
+      div.onclick = () => showSentMessageDetail(msg);
+      container.appendChild(div);
+    });
+  } catch(err) {
+    container.innerHTML = `<div class="empty-state">❌ خطا: ${err.message}</div>`;
   }
 }
 
-// باز کردن پیام ارسالی
-function openSentMessage(m) {
-  document.getElementById("view_title").innerText = m.title;
-  document.getElementById("view_sender").innerText = "فرستنده: " + (m.sender || parseToken()?.username || "ادمین");
-  document.getElementById("view_content").innerText = m.content;
-}
+  async function showInboxMessageDetail(id, element) {
+    const viewer = document.getElementById('messageViewer');
+    document.querySelectorAll('#inboxList .list-item, #sentList .list-item').forEach(item => item.classList.remove('active'));
+    if (element) element.classList.add('active');
+    try {
+      viewer.innerHTML = '<div class="alert alert-info">📖 در حال بارگذاری پیام...</div>';
+      const res = await fetch(API_URL + `/messages/${id}`, { headers: authHeaders() });
+      if (!res.ok) throw new Error('خطا در دریافت پیام');
+      const msg = await res.json();
+      viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
+      if (element && element.classList.contains('unread')) {
+        await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+        element.classList.remove('unread');
+      }
+    } catch(err) {
+      viewer.innerHTML = `<div class="alert alert-error">❌ خطا: ${err.message}</div>`;
+    }
+  }
 
-// بارگذاری اولیه
-loadUsers().then(loadInbox);
+  async function showSentMessageDetail(msg) {
+    const viewer = document.getElementById('messageViewer');
+    document.querySelectorAll('#inboxList .list-item, #sentList .list-item').forEach(item => item.classList.remove('active'));
+    const sentItems = document.querySelectorAll('#sentList .list-item');
+    for (let item of sentItems) {
+      if (item.getAttribute('data-id') == msg.id) {
+        item.classList.add('active');
+        break;
+      }
+    }
+    const receivers = msg.receivers ? msg.receivers.map(u => u.username).join(', ') : `${msg.receivers_count || 0} نفر`;
+    viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || parseToken()?.username || 'ادمین')}</p><p><strong>👥 گیرندگان:</strong> ${escapeHtml(receivers)}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
+  }
 
+  function showAlert(container, message, type) {
+    const className = type === 'error' ? 'alert-error' : (type === 'success' ? 'alert-success' : 'alert-info');
+    container.innerHTML = `<div class="alert ${className}">${message}</div>`;
+    setTimeout(() => { if (container.innerHTML.includes(message)) container.innerHTML = ''; }, 3000);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if(m === '&') return '&amp;';
+      if(m === '<') return '&lt;';
+      if(m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadUsersWithFeedback();
+    loadInboxWithFeedback();
+    loadSentWithFeedback();
+  });
 </script>
 </body>
 </html>
