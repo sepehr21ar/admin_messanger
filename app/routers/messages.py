@@ -46,7 +46,11 @@ def send_message(
     admin=Depends(get_current_admin)
 ):
     admin_user = db.query(models.User).filter_by(username=admin["sub"]).first()
-
+    
+    # اعتبارسنجی: جلوگیری از ارسال پیام به خود ادمین
+    if admin_user.id in data.user_ids:
+        raise HTTPException(status_code=400, detail="شما نمی‌توانید به خودتان پیام ارسال کنید")
+    
     msg = models.Message(
         title=data.title,
         content=data.content,
@@ -55,7 +59,7 @@ def send_message(
     db.add(msg)
     db.commit()
     db.refresh(msg)
-
+    
     for uid in data.user_ids:
         db.add(models.MessageRecipient(
             message_id=msg.id,
@@ -75,14 +79,15 @@ def inbox(
     recs = db.query(models.MessageRecipient).filter_by(user_id=u.id).all()
 
     return [
-        {
-            "id": r.message.id,
-            "title": r.message.title,
-            "sender": r.message.admin.username,  # 👈 فرستنده
-            "is_read": r.is_read
-        }
-        for r in recs
-    ]
+    {
+        "id": r.message.id,
+        "title": r.message.title,
+        "sender": r.message.admin.username,
+        "created_at": r.message.created_at,  # اضافه شود
+        "is_read": r.is_read
+    }
+    for r in recs
+]
 
 
 @router.get("/{message_id}")
@@ -102,12 +107,13 @@ def get_message(
         raise HTTPException(status_code=404, detail="Message not found")
 
     return {
-    "id": rec.message.id,
-    "title": rec.message.title,
-    "content": rec.message.content,
-    "sender": rec.message.admin.username,  # 👈
-    "is_read": rec.is_read
-}
+        "id": rec.message.id,
+        "title": rec.message.title,
+        "content": rec.message.content,
+        "sender": rec.message.admin.username,
+        "created_at": rec.message.created_at,   # 👈 اضافه کردن این خط
+        "is_read": rec.is_read
+    }
 
 @router.post("/{message_id}/read")
 def mark_as_read(
