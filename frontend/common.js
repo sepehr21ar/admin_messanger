@@ -60,7 +60,7 @@ async function loadSent() {
   list.innerHTML = "";
 
   sent.forEach(m => {
-    // نام گیرندگان
+
     const recipientNames = m.receivers ? m.receivers.map(u => u.username).join(", ") : m.receivers_count || "";
     const li = document.createElement("li");
     li.textContent = `📤 ${m.title} → ${recipientNames}`;
@@ -108,3 +108,17 @@ async function sendMessage(title, content, user_ids, msgElementId="msg") {
   const data = await res.json();
   if (msgElementId) document.getElementById(msgElementId).innerText = data.message;
 }
+
+function addPageClass() {
+  const path = window.location.pathname;
+  let pageClass = '';
+  if (path.includes('login.html') || path === '/' || path.endsWith('/')) {
+    pageClass = 'login-page';
+  } else if (path.includes('user.html')) {
+    pageClass = 'user-page';
+  } else if (path.includes('admin.html')) {
+    pageClass = 'admin-page';
+  }
+  if (pageClass) document.body.classList.add(pageClass);
+}
+addPageClass();
