@@ -32,6 +32,12 @@ button:disabled {
   padding: 40px;
   color: #999;
 }
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
 .login-page {
   background: linear-gradient(135deg, #0935f9 0%, #ff1111 100%);
@@ -126,6 +132,63 @@ button:disabled {
   text-align: center;
 }
 
+.password-page {
+  background: #f0f2f5;
+  min-height: 100vh;
+  padding: 24px;
+}
+.password-page .container {
+  max-width: 520px;
+}
+.password-page-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 24px;
+}
+.password-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.password-page h2 {
+  margin: 0;
+}
+.password-page .form-group {
+  margin-bottom: 14px;
+}
+.password-page label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.password-page input {
+  width: 100%;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  padding: 10px 12px;
+}
+.password-page button {
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+.password-page .btn-secondary {
+  background: #6c757d;
+}
+.password-page #passwordMsg.password-success,
+.password-page #passwordMsg.password-error {
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+}
+
 .user-page {
   background: #f0f2f5;
   padding: 20px;
@@ -178,6 +241,14 @@ button:disabled {
 .user-page .refresh-btn {
   background: #17a2b8;
   margin-left: 10px;
+}
+.password-success {
+  background: #d4edda;
+  color: #155724;
+}
+.password-error {
+  background: #f8d7da;
+  color: #721c24;
 }
 .user-page .two-columns {
   display: flex;
@@ -389,6 +460,16 @@ button:disabled {
 .admin-page .btn-info:hover {
   background: #138496;
 }
+.admin-page .btn-danger {
+  background: #dc3545;
+}
+.admin-page .btn-danger:hover {
+  background: #c82333;
+}
+.admin-page .btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
 .admin-page .list-container {
   max-height: 350px;
   overflow-y: auto;
@@ -451,11 +532,19 @@ button:disabled {
   padding: 10px 15px;
   border-bottom: 1px solid #eee;
   font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 .admin-page .user-item.current-admin {
   background: #e9ecef;
   border-right: 4px solid #6c757d;
   font-weight: bold;
+}
+.admin-page .self-note {
+  color: #6c757d;
+  font-size: 12px;
 }
 .admin-page .alert {
   padding: 12px 15px;

@@ -3,7 +3,7 @@
 <head>
 <link rel="stylesheet" href="style.css">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">z
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>پنل مدیریت پیام‌ها</title>
 
 </head>
@@ -12,7 +12,10 @@
   <div class="header">
     <h2>👑 پنل مدیریت سامانه پیام‌ها</h2>
     <div class="user-info" id="userInfoDisplay"></div>
-    <button class="btn-logout" onclick="logout()">🚪 خروج از پنل</button>
+    <div class="header-actions">
+      <button class="btn-info" onclick="window.location.href='change_password.html'">Change password</button>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
   </div>
 
   <div class="row-cards">
@@ -85,7 +88,7 @@
     <div class="left-panel">
       <div class="card">
         <div class="tabs">
-          <div class="tab active" data-tab="inbox" onclick="switchTab('inbox')">📥 پیام‌های دریافتی من</div>
+          <div class="tab active" data-tab="inbox" onclick="switchTab('inbox')">Feedback / received admin messages</div>
           <div class="tab" data-tab="sent" onclick="switchTab('sent')">📤 پیام‌های ارسالی من</div>
         </div>
         <div id="tab-inbox" class="tab-content active">
@@ -170,7 +173,13 @@
         }
         const roleColor = user.role === 'admin' ? '#28a745' : '#6c757d';
         const roleText = user.role === 'admin' ? 'ادمین' : 'کاربر';
-        div.innerHTML = `<strong>🆔 ${user.id}</strong> - ${escapeHtml(user.username)} <span style="color:${roleColor}; font-size:12px;">(${roleText})</span>`;
+        let deleteButton = `<button class="btn-danger btn-small" onclick="deleteUserWithFeedback(${user.id}, '${escapeJs(user.username)}')">Delete</button>`;
+        if (Number(user.id) === currentUserId) {
+          deleteButton = '<span class="self-note">current admin</span>';
+        } else if (user.role === 'admin' && Number(user.created_by_admin_id) !== currentUserId) {
+          deleteButton = '<span class="self-note">created by another admin</span>';
+        }
+        div.innerHTML = `<div><strong>🆔 ${user.id}</strong> - ${escapeHtml(user.username)} <span style="color:${roleColor}; font-size:12px;">(${roleText})</span></div><div>${deleteButton}</div>`;
         container.appendChild(div);
       });
     } catch(err) {
@@ -361,7 +370,8 @@ function formatDate(dateStr) {
       const msg = await res.json();
       viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
       if (element && element.classList.contains('unread')) {
-        await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+        const readRes = await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+        if (!readRes.ok) throw new Error('Could not mark message as read');
         element.classList.remove('unread');
       }
     } catch(err) {
@@ -383,6 +393,23 @@ function formatDate(dateStr) {
     viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || parseToken()?.username || 'ادمین')}</p><p><strong>👥 گیرندگان:</strong> ${escapeHtml(receivers)}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
   }
 
+  async function deleteUserWithFeedback(userId, username) {
+    if (Number(userId) === currentUserId) {
+      alert('You cannot delete your own account.');
+      return;
+    }
+    if (!confirm(`Delete user ${username} (#${userId})? Message history will remain.`)) {
+      return;
+    }
+    try {
+      await deleteUser(userId);
+      await loadUsersWithFeedback();
+      await loadSentWithFeedback();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   function showAlert(container, message, type) {
     const className = type === 'error' ? 'alert-error' : (type === 'success' ? 'alert-success' : 'alert-info');
     container.innerHTML = `<div class="alert ${className}">${message}</div>`;
@@ -399,6 +426,10 @@ function formatDate(dateStr) {
     });
   }
 
+  function escapeJs(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     loadUsersWithFeedback();
     loadInboxWithFeedback();
@@ -407,3 +438,4 @@ function formatDate(dateStr) {
 </script>
 </body>
 </html>
+
