@@ -9,7 +9,7 @@ def update_all_passwords():
     users = db.query(User).all()
     
     for user in users:
-        # اگر پسورد خام است (تقریباً بدون $2b$)، هش می‌کنیم
+        
         if not user.password_hash.startswith("$2b$"):
             print(f"Updating password for user: {user.username}")
             user.password_hash = hash_password(user.password_hash)

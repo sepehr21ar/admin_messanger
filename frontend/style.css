@@ -1,0 +1,636 @@
+/* ========== styles.css ========== */
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  margin: 0;
+  direction: rtl;
+}
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+button {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+button:active {
+  transform: scale(0.98);
+}
+button:disabled {
+  cursor: not-allowed;
+}
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.login-page {
+  background: linear-gradient(135deg, #0935f9 0%, #ff1111 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.login-page .container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 420px;
+  transition: transform 0.3s;
+  backdrop-filter: blur(2px);
+}
+.login-page .system-title {
+  text-align: center;
+  font-size: 14px;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.login-page h2 {
+  text-align: center;
+  color: #1e293b;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+}
+.login-page .input-group {
+  margin-bottom: 1.2rem;
+}
+.login-page label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #334155;
+}
+.login-page input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 16px;
+  transition: all 0.3s;
+  background: #f8fafc;
+}
+.login-page input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+  background: white;
+}
+.login-page button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+.login-page button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.3);
+}
+.login-page button:active {
+  transform: scale(0.98);
+}
+.login-page #msg {
+  margin-top: 1rem;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+.login-page .error {
+  background: #fee2e2;
+  color: #dc2626;
+  border-right: 4px solid #dc2626;
+}
+.login-page .help-text {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.password-page {
+  background: #f0f2f5;
+  min-height: 100vh;
+  padding: 24px;
+}
+.password-page .container {
+  max-width: 520px;
+}
+.password-page-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 24px;
+}
+.password-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.password-page h2 {
+  margin: 0;
+}
+.password-page .form-group {
+  margin-bottom: 14px;
+}
+.password-page label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.password-page input {
+  width: 100%;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  padding: 10px 12px;
+}
+.password-page button {
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  padding: 10px 16px;
+}
+.password-page .btn-secondary {
+  background: #6c757d;
+}
+.password-page #passwordMsg.password-success,
+.password-page #passwordMsg.password-error {
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+}
+
+.user-page {
+  background: #f0f2f5;
+  padding: 20px;
+}
+.user-page .container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.user-page .header {
+  background: rgb(153, 171, 237);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.user-page .user-info {
+  background: #ffffff;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+.user-page h2 {
+  margin: 0;
+  color: #333;
+}
+.user-page button {
+  padding: 8px 16px;
+  background: #3b9847;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.user-page button:hover {
+  background: #45a049;
+}
+.user-page .logout-btn {
+  background: #ec0c22;
+}
+.user-page .logout-btn:hover {
+  background: #be1022;
+}
+.user-page .refresh-btn {
+  background: #17a2b8;
+  margin-left: 10px;
+}
+.password-success {
+  background: #d4edda;
+  color: #155724;
+}
+.password-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+.user-page .two-columns {
+  display: flex;
+  gap: 23px;
+  flex-wrap: wrap;
+}
+.user-page .messages-panel {
+  flex: 1;
+  min-width: 280px;
+  background: rgb(252, 252, 252);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  height: fit-content;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.user-page .content-panel {
+  flex: 1.5;
+  min-width: 300px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  height: fit-content;
+  min-height: 340px;
+}
+.user-page .inbox-list {
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+.user-page .message-item {
+  padding: 15px;
+  border-bottom: 1px solid #040d33;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.user-page .message-item:hover {
+  background: rgb(221, 220, 220);
+}
+.user-page .message-item.unread {
+  background: #f8f9fa;
+  border-right: 4px solid #2196F3;
+  font-weight: bold;
+}
+.user-page .message-item.unread:hover {
+  background: rgb(221, 220, 220);
+}
+.user-page .message-item.selected {
+  background: #cfe7ff;
+  border-left: 3px solid #0a58ca;
+}
+.user-page .message-title {
+  font-size: 16px;
+}
+.user-page .message-sender {
+  font-size: 12px;
+  color: #615f5f;
+  margin-top: 5px;
+}
+.user-page .message-detail h3 {
+  margin-top: 0;
+  color: #333;
+}
+.user-page .message-detail p {
+  line-height: 1.5;
+}
+.user-page hr {
+  margin: 15px 0;
+}
+@media (max-width: 700px) {
+  .user-page .two-columns {
+    flex-direction: column;
+  }
+}
+
+.admin-page {
+  background: #f0f2f5;
+  padding: 20px;
+}
+.admin-page .container {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+.admin-page .header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 25px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+.admin-page .user-info {
+  background: #ffffff;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+  color: #333;
+}
+.admin-page .header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.admin-page .btn-logout {
+  background: #dc3545;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.admin-page .btn-logout:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+.admin-page .two-columns {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+.admin-page .left-panel {
+  flex: 1.2;
+  min-width: 350px;
+}
+.admin-page .right-panel {
+  flex: 0.8;
+  min-width: 350px;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
+}
+.admin-page .card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+.admin-page .card-header {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-bottom: 2px solid #6b6e71;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.admin-page .card-body {
+  padding: 20px;
+}
+.admin-page .form-group {
+  margin-bottom: 15px;
+}
+.admin-page label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+.admin-page input, .admin-page select, .admin-page textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 3px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+.admin-page input:focus, .admin-page select:focus, .admin-page textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+}
+.admin-page textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.admin-page button {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.admin-page button:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+}
+.admin-page .btn-success {
+  background: #28a745;
+}
+.admin-page .btn-success:hover {
+  background: #218838;
+}
+.admin-page .btn-info {
+  background: #17a2b8;
+}
+.admin-page .btn-info:hover {
+  background: #138496;
+}
+.admin-page .btn-danger {
+  background: #dc3545;
+}
+.admin-page .btn-danger:hover {
+  background: #c82333;
+}
+.admin-page .btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.admin-page .list-container {
+  max-height: 350px;
+  overflow-y: auto;
+}
+.admin-page .list-item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #c00808;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-page .list-item:hover {
+  background: rgb(221, 220, 220);
+}
+.admin-page .list-item.unread {
+  background: #e3f2fd;
+  border-right: 4px solid #2196F3;
+  font-weight: bold;
+}
+.admin-page .list-item.active {
+  background: #e8eaf6;
+  border-right: 4px solid #667eea;
+}
+.admin-page .message-preview {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+.admin-page .message-viewer {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+}
+.admin-page .viewer-header {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-bottom: 2px solid #e9ecef;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.admin-page .viewer-content {
+  padding: 20px;
+  min-height: 400px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.admin-page .empty-viewer {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.admin-page .users-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+.admin-page .user-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.admin-page .user-item.current-admin {
+  background: #e9ecef;
+  border-right: 4px solid #6c757d;
+  font-weight: bold;
+}
+.admin-page .self-note {
+  color: #6c757d;
+  font-size: 12px;
+}
+.admin-page .alert {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+.admin-page .alert-success {
+  background: #d4edda;
+  color: #155724;
+  border-right: 4px solid #28a745;
+}
+.admin-page .alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border-right: 4px solid #dc3545;
+}
+.admin-page .alert-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border-right: 4px solid #17a2b8;
+}
+.admin-page .tabs {
+  display: flex;
+  border-bottom: 2px solid #e9ecef;
+  background: #f8f9fa;
+}
+.admin-page .tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+.admin-page .tab.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background: white;
+}
+.admin-page .tab:hover:not(.active) {
+  background: #e9ecef;
+}
+.admin-page .tab-content {
+  display: none;
+}
+.admin-page .tab-content.active {
+  display: block;
+}
+.admin-page .row-cards {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+.admin-page .row-cards .card {
+  flex: 1;
+  margin-bottom: 0;
+}
+.admin-page .horizontal-message-card .card-body {
+  padding: 8px;
+}
+.admin-page .horizontal-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+.admin-page .horizontal-form .field {
+  flex: 1;
+  min-width: 150px;
+}
+.admin-page .horizontal-form .field-button {
+  flex: 0.3;
+  min-width: 100px;
+}
+@media (max-width: 900px) {
+  .admin-page .two-columns {
+    flex-direction: column;
+  }
+  .admin-page .right-panel {
+    position: static;
+  }
+  .admin-page .row-cards {
+    flex-direction: column;
+  }
+}

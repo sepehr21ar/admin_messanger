@@ -1,342 +1,23 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
+<link rel="stylesheet" href="style.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>پنل مدیریت پیام‌ها</title>
-<style>
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-    direction: rtl;
-  }
-  .container {
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-  .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px 25px;
-    border-radius: 15px;
-    margin-bottom: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-  .user-info {
-    background: #ffffff;
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 14px;
-    color: #333 ;
-  }
-  .header h2 {
-    margin: 0;
-    font-size: 24px;
-  }
-  .btn-logout {
-    background: #dc3545;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-  }
-  .btn-logout:hover {
-    background: #c82333;
-    transform: translateY(-1px);
-  }
-  .two-columns {
-    display: flex;
-    gap: 25px;
-    flex-wrap: wrap;
-  }
-  .left-panel {
-    flex: 1.2;
-    min-width: 350px;
-  }
-  .right-panel {
-    flex: 0.8;
-    min-width: 350px;
-    position: sticky;
-    top: 20px;
-    align-self: flex-start;
-  }
-  .card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
-    margin-bottom: 25px;
-  }
-  .card-header {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-bottom: 2px solid #6b6e71;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .card-body {
-    padding: 20px;
-  }
-  .form-group {
-    margin-bottom: 15px;
-  }
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #555;
-    font-size: 14px;
-  }
-  input, select, textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 3px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: inherit;
-    transition: all 0.3s;
-  }
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
-  }
-  textarea {
-    resize: vertical;
-    min-height: 60px;
-  }
-  button {
-    padding: 10px 20px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.2s;
-  }
-  button:hover {
-    background: #5a67d8;
-    transform: translateY(-1px);
-  }
-  button:active {
-    transform: translateY(0);
-  }
-  button:disabled {
-    background: #aaa;
-    cursor: not-allowed;
-    transform: none;
-  }
-  .btn-success {
-    background: #28a745;
-  }
-  .btn-success:hover {
-    background: #218838;
-  }
-  .btn-info {
-    background: #17a2b8;
-  }
-  .btn-info:hover {
-    background: #138496;
-  }
-  .list-container {
-    max-height: 350px;
-    overflow-y: auto;
-  }
-  .list-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid #c00808;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .list-item:hover {
-  background: rgb(221, 220, 220);
-  }
-  
 
-  .list-item.unread {
-    background: #e3f2fd;
-    border-right: 4px solid #2196F3;
-    font-weight: bold;
-  }
-  .list-item.active {
-    background: #e8eaf6;
-    border-right: 4px solid #667eea;
-  }
-  .message-preview {
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
-  }
-  .message-viewer {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow: hidden;
-    position: sticky;
-    top: 20px;
-  }
-  .viewer-header {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-bottom: 2px solid #e9ecef;
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-  }
-  .viewer-content {
-    padding: 20px;
-    min-height: 400px;
-    max-height: 500px;
-    overflow-y: auto;
-  }
-  .empty-viewer {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-  }
-  .users-list {
-    max-height: 250px;
-    overflow-y: auto;
-  }
-  .user-item {
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-  }
-  .user-item.current-admin {
-    background: #e9ecef;
-    border-right: 4px solid #6c757d;
-    font-weight: bold;
-  }
-  .alert {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-size: 14px;
-  }
-  .alert-success {
-    background: #d4edda;
-    color: #155724;
-    border-right: 4px solid #28a745;
-  }
-  .alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border-right: 4px solid #dc3545;
-  }
-  .alert-info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border-right: 4px solid #17a2b8;
-  }
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 30px;
-    color: #999;
-  }
-  .tabs {
-    display: flex;
-    border-bottom: 2px solid #e9ecef;
-    background: #f8f9fa;
-  }
-  .tab {
-    flex: 1;
-    padding: 12px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: 600;
-    color: #666;
-    transition: all 0.2s;
-    border-bottom: 3px solid transparent;
-  }
-  .tab.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
-    background: white;
-  }
-  .tab:hover:not(.active) {
-    background: #e9ecef;
-  }
-  .tab-content {
-    display: none;
-  }
-  .tab-content.active {
-    display: block;
-  }
-  /* چیدمان جدید: دو کارت در ردیف اول، کارت ارسال پیام در ردیف دوم به صورت افقی */
-  .row-cards {
-    display: flex;
-    gap: 25px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-  }
-  .row-cards .card {
-    flex: 1;
-    margin-bottom: 0;
-  }
-  /* کارت ارسال پیام در زیر با عرض کامل */
-  .horizontal-message-card .card-body {
-    padding: 8px;
-  }
-  .horizontal-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: flex-end;
-  }
-  .horizontal-form .field {
-    flex: 1;
-    min-width: 150px;
-  }
-  .horizontal-form .field-button {
-    flex: 0.3;
-    min-width: 100px;
-  }
-  @media (max-width: 900px) {
-    .two-columns {
-      flex-direction: column;
-    }
-    .right-panel {
-      position: static;
-    }
-    .row-cards {
-      flex-direction: column;
-    }
-  }
-</style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h2>👑 پنل مدیریت سامانه پیام‌ها</h2>
     <div class="user-info" id="userInfoDisplay"></div>
-    <button class="btn-logout" onclick="logout()">🚪 خروج از پنل</button>
+    <div class="header-actions">
+      <button class="btn-info" onclick="window.location.href='change_password.html'">Change password</button>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
   </div>
 
-  <!-- ردیف اول: دو کارت مدیریت کاربران و ایجاد کاربر جدید در کنار هم -->
   <div class="row-cards">
     <div class="card">
       <div class="card-header">👤 مدیریت کاربران</div>
@@ -372,22 +53,16 @@
     </div>
   </div>
 
-  <!-- ردیف دوم: کارت ارسال پیام جدید به صورت افقی (فیلدها در یک ردیف) -->
-<!-- ردیف دوم: کارت ارسال پیام جدید -->
 <div class="card horizontal-message-card">
   <div class="card-header">✉️ ارسال پیام جدید</div>
   <div class="card-body">
-    <!-- کل محتوا داخل یک فلکس ستونی -->
     <div style="display: flex; flex-direction: column; gap: 12px;">
 
-      <!-- ردیف افقی: عنوان پیام + شناسه کاربران -->
       <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-        <!-- ستون عنوان پیام -->
         <div style="flex: 1;">
           <label>📌 عنوان پیام</label>
           <input type="text" id="msgTitle" placeholder="عنوان پیام" style="width: 100%;">
         </div>
-        <!-- ستون شناسه کاربران -->
         <div style="flex: 1;">
           <label>👥 شناسه کاربران</label>
           <input type="text" id="userIds" placeholder="مثال: 1,2,3,5" style="width: 100%;">
@@ -395,13 +70,11 @@
         </div>
       </div>
 
-      <!-- ردیف متن پیام (در عرض کامل) -->
       <div>
         <label>📝 متن پیام</label>
         <textarea id="msgContent" placeholder="متن پیام را وارد کنید..." rows="3" style="width: 100%;"></textarea>
       </div>
 
-      <!-- ردیف دکمه ارسال -->
       <div>
         <button id="sendMsgBtn" onclick="sendMessageWithFeedback()" style="width: 100%; padding: 8px 20px; font-size: 14px; margin-top: 5px;">📨 ارسال</button>
         <div id="sendMsgResult"></div>
@@ -411,12 +84,11 @@
   </div>
 </div>
 
-  <!-- بخش پایینی (لیست پیام‌ها و نمایشگر) بدون تغییر -->
   <div class="two-columns">
     <div class="left-panel">
       <div class="card">
         <div class="tabs">
-          <div class="tab active" data-tab="inbox" onclick="switchTab('inbox')">📥 پیام‌های دریافتی من</div>
+          <div class="tab active" data-tab="inbox" onclick="switchTab('inbox')">Feedback / received admin messages</div>
           <div class="tab" data-tab="sent" onclick="switchTab('sent')">📤 پیام‌های ارسالی من</div>
         </div>
         <div id="tab-inbox" class="tab-content active">
@@ -501,7 +173,13 @@
         }
         const roleColor = user.role === 'admin' ? '#28a745' : '#6c757d';
         const roleText = user.role === 'admin' ? 'ادمین' : 'کاربر';
-        div.innerHTML = `<strong>🆔 ${user.id}</strong> - ${escapeHtml(user.username)} <span style="color:${roleColor}; font-size:12px;">(${roleText})</span>`;
+        let deleteButton = `<button class="btn-danger btn-small" onclick="deleteUserWithFeedback(${user.id}, '${escapeJs(user.username)}')">Delete</button>`;
+        if (Number(user.id) === currentUserId) {
+          deleteButton = '<span class="self-note">current admin</span>';
+        } else if (user.role === 'admin' && Number(user.created_by_admin_id) !== currentUserId) {
+          deleteButton = '<span class="self-note">created by another admin</span>';
+        }
+        div.innerHTML = `<div><strong>🆔 ${user.id}</strong> - ${escapeHtml(user.username)} <span style="color:${roleColor}; font-size:12px;">(${roleText})</span></div><div>${deleteButton}</div>`;
         container.appendChild(div);
       });
     } catch(err) {
@@ -692,7 +370,8 @@ function formatDate(dateStr) {
       const msg = await res.json();
       viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
       if (element && element.classList.contains('unread')) {
-        await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+        const readRes = await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
+        if (!readRes.ok) throw new Error('Could not mark message as read');
         element.classList.remove('unread');
       }
     } catch(err) {
@@ -714,6 +393,23 @@ function formatDate(dateStr) {
     viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || parseToken()?.username || 'ادمین')}</p><p><strong>👥 گیرندگان:</strong> ${escapeHtml(receivers)}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
   }
 
+  async function deleteUserWithFeedback(userId, username) {
+    if (Number(userId) === currentUserId) {
+      alert('You cannot delete your own account.');
+      return;
+    }
+    if (!confirm(`Delete user ${username} (#${userId})? Message history will remain.`)) {
+      return;
+    }
+    try {
+      await deleteUser(userId);
+      await loadUsersWithFeedback();
+      await loadSentWithFeedback();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   function showAlert(container, message, type) {
     const className = type === 'error' ? 'alert-error' : (type === 'success' ? 'alert-success' : 'alert-info');
     container.innerHTML = `<div class="alert ${className}">${message}</div>`;
@@ -730,6 +426,10 @@ function formatDate(dateStr) {
     });
   }
 
+  function escapeJs(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     loadUsersWithFeedback();
     loadInboxWithFeedback();
@@ -738,3 +438,4 @@ function formatDate(dateStr) {
 </script>
 </body>
 </html>
+

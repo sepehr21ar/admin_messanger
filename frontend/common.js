@@ -1,6 +1,6 @@
 // common.js
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.location.origin;
 
 function getToken() {
   return localStorage.getItem("token");
@@ -60,7 +60,7 @@ async function loadSent() {
   list.innerHTML = "";
 
   sent.forEach(m => {
-    // نام گیرندگان
+
     const recipientNames = m.receivers ? m.receivers.map(u => u.username).join(", ") : m.receivers_count || "";
     const li = document.createElement("li");
     li.textContent = `📤 ${m.title} → ${recipientNames}`;
@@ -99,6 +99,31 @@ async function createUser(username, password, role, msgElementId="msg") {
   loadUsers();
 }
 
+async function changePassword(current_password, new_password, confirm_password) {
+  const res = await fetch(API_URL + "/auth/change-password", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ current_password, new_password, confirm_password })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "Password change failed");
+  }
+  return data;
+}
+
+async function deleteUser(userId) {
+  const res = await fetch(API_URL + `/admin/users/${userId}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.detail || "User delete failed");
+  }
+  return data;
+}
+
 async function sendMessage(title, content, user_ids, msgElementId="msg") {
   const res = await fetch(API_URL + "/messages/send", {
     method: "POST",
@@ -108,3 +133,19 @@ async function sendMessage(title, content, user_ids, msgElementId="msg") {
   const data = await res.json();
   if (msgElementId) document.getElementById(msgElementId).innerText = data.message;
 }
+
+function addPageClass() {
+  const path = window.location.pathname;
+  let pageClass = '';
+  if (path.includes('login.html') || path === '/' || path.endsWith('/')) {
+    pageClass = 'login-page';
+  } else if (path.includes('user.html')) {
+    pageClass = 'user-page';
+  } else if (path.includes('admin.html')) {
+    pageClass = 'admin-page';
+  } else if (path.includes('change_password.html')) {
+    pageClass = 'password-page';
+  }
+  if (pageClass) document.body.classList.add(pageClass);
+}
+addPageClass();
