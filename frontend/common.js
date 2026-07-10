@@ -125,10 +125,14 @@ async function deleteUser(userId) {
 }
 
 async function sendMessage(title, content, user_ids, msgElementId="msg") {
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("content", content);
+  formData.append("user_ids", user_ids.join(","));
   const res = await fetch(API_URL + "/messages/send", {
     method: "POST",
-    headers: authHeaders(),
-    body: JSON.stringify({ title, content, user_ids })
+    headers: { "Authorization": "Bearer " + getToken() },
+    body: formData
   });
   const data = await res.json();
   if (msgElementId) document.getElementById(msgElementId).innerText = data.message;

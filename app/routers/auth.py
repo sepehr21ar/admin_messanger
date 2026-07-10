@@ -3,7 +3,13 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app import models
 from app.schemas.user import PasswordChange
-from app.core.security import verify_password, create_access_token, get_current_user, hash_password
+from app.core.security import (
+    create_access_token,
+    get_current_user,
+    hash_password,
+    password_needs_hash_upgrade,
+    verify_password,
+)
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -22,6 +28,9 @@ def login(username: str = Form(...), password: str = Form(...),
     user = db.query(models.User).filter_by(username=username, is_active=True).first()
     if not user or not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    if password_needs_hash_upgrade(user.password_hash):
+        user.password_hash = hash_password(password)
+        db.commit()
     
     # ✅ اضافه کردن user_id به توکن
     token = create_access_token({

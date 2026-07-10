@@ -24,6 +24,9 @@ class Message(Base):
     title = Column(String(200))
     content = Column(Text)
     admin_id = Column(Integer, ForeignKey("users.id"))
+    attachment_filename = Column(String(255), nullable=True)
+    attachment_stored_filename = Column(String(255), nullable=True)
+    attachment_content_type = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     admin = relationship("User", back_populates="messages_sent")
