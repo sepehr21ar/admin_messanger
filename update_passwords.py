@@ -10,7 +10,7 @@ def update_all_passwords():
     
     for user in users:
         
-        if not user.password_hash.startswith("$2b$"):
+        if not user.password_hash.startswith(("$2a$", "$2b$", "$2y$")):
             print(f"Updating password for user: {user.username}")
             user.password_hash = hash_password(user.password_hash)
     

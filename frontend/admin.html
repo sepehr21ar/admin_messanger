@@ -76,6 +76,11 @@
       </div>
 
       <div>
+        <label>Attachment</label>
+        <input type="file" id="msgAttachment" style="width: 100%;">
+      </div>
+
+      <div>
         <button id="sendMsgBtn" onclick="sendMessageWithFeedback()" style="width: 100%; padding: 8px 20px; font-size: 14px; margin-top: 5px;">📨 ارسال</button>
         <div id="sendMsgResult"></div>
       </div>
@@ -226,6 +231,7 @@
     const title = document.getElementById('msgTitle').value.trim();
     const content = document.getElementById('msgContent').value.trim();
     const userIdsStr = document.getElementById('userIds').value.trim();
+    const attachmentInput = document.getElementById('msgAttachment');
     const resultDiv = document.getElementById('sendMsgResult');
     const sendBtn = document.getElementById('sendMsgBtn');
     
@@ -250,10 +256,17 @@
     resultDiv.innerHTML = '<div class="alert alert-info">📤 در حال ارسال پیام...</div>';
     
     try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('user_ids', userIds.join(','));
+      if (attachmentInput.files.length > 0) {
+        formData.append('attachment', attachmentInput.files[0]);
+      }
       const res = await fetch(API_URL + "/messages/send", {
         method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ title, content, user_ids: userIds })
+        headers: { "Authorization": "Bearer " + getToken() },
+        body: formData
       });
       const data = await res.json();
       if (!res.ok) {
@@ -264,6 +277,7 @@
       document.getElementById('msgTitle').value = '';
       document.getElementById('msgContent').value = '';
       document.getElementById('userIds').value = '';
+      attachmentInput.value = '';
       loadSentWithFeedback();
       setTimeout(() => resultDiv.innerHTML = '', 3000);
     } catch(err) {
@@ -312,6 +326,7 @@ function formatDate(dateStr) {
       div.innerHTML = `
         <strong>📨 ${escapeHtml(msg.title)}</strong>
         <div class="message-preview">از: ${escapeHtml(msg.sender || 'سیستم')}</div>
+        ${msg.attachment ? '<div class="message-preview">Attachment: ' + escapeHtml(msg.attachment.filename || 'file') + '</div>' : ''}
         <div style="font-size: 11px; color: #888; margin-top: 5px;">📅 ${formatDate(msg.created_at)}</div>
       `;
       div.onclick = () => showInboxMessageDetail(msg.id, div);
@@ -349,6 +364,7 @@ function formatDate(dateStr) {
       div.innerHTML = `
         <strong>📤 ${escapeHtml(msg.title)}</strong>
         <div class="message-preview">گیرندگان: ${escapeHtml(receivers)}</div>
+        ${msg.attachment ? '<div class="message-preview">Attachment: ' + escapeHtml(msg.attachment.filename || 'file') + '</div>' : ''}
         <div style="font-size: 11px; color: #888; margin-top: 5px;">📅 ${formatDate(msg.created_at)}</div>
       `;
       div.onclick = () => showSentMessageDetail(msg);
@@ -368,7 +384,7 @@ function formatDate(dateStr) {
       const res = await fetch(API_URL + `/messages/${id}`, { headers: authHeaders() });
       if (!res.ok) throw new Error('خطا در دریافت پیام');
       const msg = await res.json();
-      viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
+      viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || 'سیستم')}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p>${renderAttachment(msg.attachment)}<hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
       if (element && element.classList.contains('unread')) {
         const readRes = await fetch(API_URL + `/messages/${id}/read`, { method: "POST", headers: authHeaders() });
         if (!readRes.ok) throw new Error('Could not mark message as read');
@@ -390,7 +406,32 @@ function formatDate(dateStr) {
       }
     }
     const receivers = msg.receivers ? msg.receivers.map(u => u.username).join(', ') : `${msg.receivers_count || 0} نفر`;
-    viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || parseToken()?.username || 'ادمین')}</p><p><strong>👥 گیرندگان:</strong> ${escapeHtml(receivers)}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p><hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
+    viewer.innerHTML = `<div><h3>📄 ${escapeHtml(msg.title)}</h3><p><strong>👤 فرستنده:</strong> ${escapeHtml(msg.sender || parseToken()?.username || 'ادمین')}</p><p><strong>👥 گیرندگان:</strong> ${escapeHtml(receivers)}</p><p><strong>📅 تاریخ:</strong> ${msg.created_at ? new Date(msg.created_at).toLocaleDateString('fa-IR') + ' ' + new Date(msg.created_at).toLocaleTimeString('fa-IR') : 'نامشخص'}</p>${renderAttachment(msg.attachment)}<hr><p style="white-space: pre-wrap;">${escapeHtml(msg.content)}</p></div>`;
+  }
+
+  function renderAttachment(attachment) {
+    if (!attachment) return '';
+    return `<p><strong>Attachment:</strong> <button class="btn-info btn-small" onclick="downloadAttachment('${attachment.url}')">${escapeHtml(attachment.filename || 'Download file')}</button></p>`;
+  }
+
+  async function downloadAttachment(url) {
+    const res = await fetch(API_URL + url, { headers: { "Authorization": "Bearer " + getToken() } });
+    if (!res.ok) {
+      alert('Could not download attachment');
+      return;
+    }
+    const blob = await res.blob();
+    const disposition = res.headers.get('content-disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/i);
+    const filename = match ? match[1] : 'attachment';
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
   }
 
   async function deleteUserWithFeedback(userId, username) {

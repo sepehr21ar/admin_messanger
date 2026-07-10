@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
+from passlib.exc import UnknownHashError
 from passlib.context import CryptContext
 
 load_dotenv()
@@ -24,7 +25,17 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password: str, hashed: str) -> bool:
-    return pwd_context.verify(password, hashed)
+    try:
+        return pwd_context.verify(password, hashed)
+    except (UnknownHashError, ValueError):
+        return password == hashed
+
+
+def password_needs_hash_upgrade(hashed: str) -> bool:
+    try:
+        return pwd_context.needs_update(hashed)
+    except (UnknownHashError, ValueError):
+        return True
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

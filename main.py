@@ -9,6 +9,7 @@ from app import models
 from app.routers import auth, messages
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import admin
+from app.core.security import hash_password
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -18,12 +19,35 @@ app = FastAPI(title="Auth & Messaging System")
 @app.on_event("startup")
 def startup():
     models.Base.metadata.create_all(bind=engine)
-
-with engine.begin() as conn:
-    conn.execute(text(
-        "ALTER TABLE users "
-        "ADD COLUMN IF NOT EXISTS created_by_admin_id INTEGER REFERENCES users(id)"
-    ))
+    with engine.begin() as conn:
+        conn.execute(text(
+            "ALTER TABLE users "
+            "ADD COLUMN IF NOT EXISTS created_by_admin_id INTEGER REFERENCES users(id)"
+        ))
+        conn.execute(text(
+            "ALTER TABLE messages "
+            "ADD COLUMN IF NOT EXISTS attachment_filename VARCHAR(255)"
+        ))
+        conn.execute(text(
+            "ALTER TABLE messages "
+            "ADD COLUMN IF NOT EXISTS attachment_stored_filename VARCHAR(255)"
+        ))
+        conn.execute(text(
+            "ALTER TABLE messages "
+            "ADD COLUMN IF NOT EXISTS attachment_content_type VARCHAR(100)"
+        ))
+        conn.execute(
+            text(
+                "INSERT INTO users (username, password_hash, role) "
+                "VALUES (:username, :password_hash, :role) "
+                "ON CONFLICT (username) DO NOTHING"
+            ),
+            {
+                "username": "admin",
+                "password_hash": hash_password("admin123"),
+                "role": "admin",
+            },
+        )
 
 
 app.add_middleware(
