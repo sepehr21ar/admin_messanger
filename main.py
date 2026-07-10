@@ -36,18 +36,22 @@ def startup():
             "ALTER TABLE messages "
             "ADD COLUMN IF NOT EXISTS attachment_content_type VARCHAR(100)"
         ))
-        conn.execute(
-            text(
-                "INSERT INTO users (username, password_hash, role) "
-                "VALUES (:username, :password_hash, :role) "
-                "ON CONFLICT (username) DO NOTHING"
-            ),
-            {
-                "username": "admin",
-                "password_hash": hash_password("admin123"),
-                "role": "admin",
-            },
-        )
+        admin_exists = conn.execute(
+            text("SELECT 1 FROM users WHERE username = :username"),
+            {"username": "admin"},
+        ).first()
+        if not admin_exists:
+            conn.execute(
+                text(
+                    "INSERT INTO users (username, password_hash, role) "
+                    "VALUES (:username, :password_hash, :role)"
+                ),
+                {
+                    "username": "admin",
+                    "password_hash": hash_password("admin123"),
+                    "role": "admin",
+                },
+            )
 
 
 app.add_middleware(
